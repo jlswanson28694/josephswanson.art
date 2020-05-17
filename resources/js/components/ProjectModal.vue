@@ -28,7 +28,7 @@
             </div>
         </div>
 
-        <ul class="project-display custom-scrollbar" @scroll="onScroll($event.target.scrollTop)">
+        <ul class="project-display custom-scrollbar" @scroll="onScroll()" ref="projectDisplay">
             <li>
                 <transition name="fade-down">
                     <div class="fixed scroll-arrow text-2xl bg-gray-800 px-2 rounded-lg" v-show="displayScrollPrompt">
@@ -36,8 +36,9 @@
                     </div>
                 </transition>
             </li>
+            
             <li class="p-2" v-for="image in currentProject.images" :key="image.id">
-                <img :src="getImgUrl(image.path)" alt="">
+                <img :src="getImgUrl(image.path)" alt="" @load="setDisplayScrollPrompt()">
                 <p class="text-center">
                     {{ image.caption }}
                 </p>
@@ -62,7 +63,7 @@ export default {
             displayDescription: false,
             onMobile: false,
             displayScrollPrompt: false,
-            previousUrl: ''
+            previousUrl: '',
         }
     },
 
@@ -78,24 +79,38 @@ export default {
                 } else {
                     this.previousUrl = "/3d-art";
                 }
-                
-                // Scroll prompt should only appear if there are multiple images
-                if(this.currentProject.images.length > 1) {
-                    this.displayScrollPrompt = true;
-                }
-            });
-        
-        window.addEventListener('resize', this.setScreenType);
+
+                // I was having this really irritating problem where the ref I had to the project display wasn't updating to account for the images that were being added. Even when I used nextTick, it wasn't giving me the correct number.
+                // I thought that was how nextTick worked. I set the data in this function, then the DOM should be updated on the next tick, right? Well it wasn't working.
+                // Maybe it was something about how $refs work? The ref gave me the correct number when I ran a test function onclick, but I couldn't get that number to show up using nextTick.
+                // It took me a long time to figure out how to get the correct number, but I found out there is a Javascript event each time an element is loaded.
+                // I set a v-on:load for each img that is added to the project display, and I have it run setDisplayScrollPrompt. Works like a charm.
+            })
+
+        window.addEventListener('resize', this.onResize);
         this.setScreenType();
     },
 
     methods: {
-        onScroll(scrollTop) {
-            if(scrollTop == 0) {
-                this.displayScrollPrompt = true;
-            } else {
-                this.displayScrollPrompt = false;
-            }
+        setDisplayScrollPrompt() {
+            if(this.currentProject) {
+                if(this.currentProject.images.length > 1 && (this.$refs.projectDisplay.scrollHeight - 70) > this.$refs.projectDisplay.clientHeight) {
+                    // There are multiple images in the project, and the scrollbar is active
+                    if(this.$refs.projectDisplay.scrollTop == 0) {
+                        // The scrollbar is at the top, so display the scroll prompt
+                        this.displayScrollPrompt = true;
+                    } else {
+                        // The scrollbar is not at the top, hide the scroll prompt
+                        this.displayScrollPrompt = false;
+                    }
+                } else {
+                    this.displayScrollPrompt = false;
+                }
+            }   
+        },
+
+        onScroll() {
+            this.setDisplayScrollPrompt();
         },
 
         getImgUrl(path) {
@@ -104,6 +119,11 @@ export default {
 
         toggleDescription() {
             this.displayDescription = !this.displayDescription;
+        },
+
+        onResize() {
+            this.setScreenType();
+            this.setDisplayScrollPrompt();
         },
 
         setScreenType() {
@@ -129,6 +149,7 @@ export default {
     @apply bg-gray-800;
     @apply bg-opacity-75;
     color: white;
+    z-index: 9999;
 }
 
 img {

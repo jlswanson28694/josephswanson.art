@@ -2252,6 +2252,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 // TO DO: 
 // * SET MAX IMAGE HEIGHT HIGHER FOR HORIZONTAL PHONE SCREENS?
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -2277,29 +2278,45 @@ __webpack_require__.r(__webpack_exports__);
         _this.previousUrl = "/";
       } else {
         _this.previousUrl = "/3d-art";
-      } // Scroll prompt should only appear if there are multiple images
+      } // I was having this really irritating problem where the ref I had to the project display wasn't updating to account for the images that were being added. Even when I used nextTick, it wasn't giving me the correct number.
+      // I thought that was how nextTick worked. I set the data in this function, then the DOM should be updated on the next tick, right? Well it wasn't working.
+      // Maybe it was something about how $refs work? The ref gave me the correct number when I ran a test function onclick, but I couldn't get that number to show up using nextTick.
+      // It took me a long time to figure out how to get the correct number, but I found out there is a Javascript event each time an element is loaded.
+      // I set a v-on:load for each img that is added to the project display, and I have it run setDisplayScrollPrompt. Works like a charm.
 
-
-      if (_this.currentProject.images.length > 1) {
-        _this.displayScrollPrompt = true;
-      }
     });
-    window.addEventListener('resize', this.setScreenType);
+    window.addEventListener('resize', this.onResize);
     this.setScreenType();
   },
   methods: {
-    onScroll: function onScroll(scrollTop) {
-      if (scrollTop == 0) {
-        this.displayScrollPrompt = true;
-      } else {
-        this.displayScrollPrompt = false;
+    setDisplayScrollPrompt: function setDisplayScrollPrompt() {
+      if (this.currentProject) {
+        if (this.currentProject.images.length > 1 && this.$refs.projectDisplay.scrollHeight - 70 > this.$refs.projectDisplay.clientHeight) {
+          // There are multiple images in the project, and the scrollbar is active
+          if (this.$refs.projectDisplay.scrollTop == 0) {
+            // The scrollbar is at the top, so display the scroll prompt
+            this.displayScrollPrompt = true;
+          } else {
+            // The scrollbar is not at the top, hide the scroll prompt
+            this.displayScrollPrompt = false;
+          }
+        } else {
+          this.displayScrollPrompt = false;
+        }
       }
+    },
+    onScroll: function onScroll() {
+      this.setDisplayScrollPrompt();
     },
     getImgUrl: function getImgUrl(path) {
       return '/images/' + path;
     },
     toggleDescription: function toggleDescription() {
       this.displayDescription = !this.displayDescription;
+    },
+    onResize: function onResize() {
+      this.setScreenType();
+      this.setDisplayScrollPrompt();
     },
     setScreenType: function setScreenType() {
       if (window.innerWidth < 1024) {
@@ -2635,7 +2652,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".project-modal[data-v-175290ff] {\n  display: flex;\n  flex-direction: column;\n  position: fixed;\n  height: 100vh;\n  top: 0;\n  left: 0;\n  right: 0;\n  --bg-opacity: 1;\n  background-color: #2d3748;\n  background-color: rgba(45, 55, 72, var(--bg-opacity));\n  --bg-opacity: 0.75;\n  color: white;\n}\nimg[data-v-175290ff] {\n  /* I would like each image to always fit on the screen. It's kind of hard to view an image if half of it is trailing off the bottom of the screen */\n  /* Unfortunately, I can't use percentage units for setting the maximum height an image can be. For some reason, I have to use pixels or v-units */\n  /* It's not possible without javascript, and I really don't like that. I think I'm just going to stick with max-height being 80vh. */\n  /* 80vh should be plenty for almost any phone screen. Portrait images do become pretty small if the phone is flipped, but not so small you can't tell what it is */\n  /* If the flipped phone thing is a big enough issue, I can use a media query to set the max-height higher, or off entirely when the phone is flipped */\n  max-height: 80vh;\n  max-width: 100%;\n  margin: 0 auto;\n}\n.project-display[data-v-175290ff] {\n  overflow-y: auto;\n  padding-bottom: 50px;\n}\n.scroll-arrow[data-v-175290ff] {\n  right: 10px;\n  bottom: 5px;\n}\n.fade-down-enter-active[data-v-175290ff], .fade-down-leave-active[data-v-175290ff] {\n  transition: opacity .5s, transform .5s;\n}\n.fade-down-enter[data-v-175290ff], .fade-down-leave-to[data-v-175290ff] {\n  opacity: 0;\n  transform: translate(0px, 50px);\n}\n.description-panel[data-v-175290ff] {\n  background-color: #273042;\n  width: 100%;\n  order: 0;\n}\n.project-description[data-v-175290ff] {\n  position: absolute;\n  background-color: #273042;\n  max-height: 50vh;\n  overflow-y: auto;\n  padding: 1rem;\n  width: 100%;\n}\n.hide-on-large[data-v-175290ff] {\n  display: block;\n}\n.custom-scrollbar[data-v-175290ff]::-webkit-scrollbar {\n  width: 5px;\n}\n.custom-scrollbar[data-v-175290ff]::-webkit-scrollbar-track {\n  background-color: #464646;\n}\n.custom-scrollbar[data-v-175290ff]::-webkit-scrollbar-thumb {\n  background-color: #838383;\n}\n@media screen and (min-width: 1024px) {\n.project-modal[data-v-175290ff] {\n    display: flex;\n    flex-direction: row;\n}\nimg[data-v-175290ff] {\n    max-height: 97vh;\n    max-width: 100%;\n}\n.project-display[data-v-175290ff] {\n    width: 80vw;\n    padding: 0;\n}\n.scroll-arrow[data-v-175290ff] {\n    right: 20vw;\n    bottom: 5px;\n    margin-right: 15px;\n}\n.description-panel[data-v-175290ff] {\n    height: auto;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    width: 20%;\n    position: static;\n    order: 2;\n}\n.project-description[data-v-175290ff] {\n    position: static;\n    display: block;\n    max-height: none;\n}\n.hide-on-large[data-v-175290ff] {\n    display: none;\n}\n.custom-scrollbar[data-v-175290ff]::-webkit-scrollbar {\n    width: 10px;\n}\n.custom-scrollbar[data-v-175290ff]::-webkit-scrollbar-track {\n    background-color: #464646;\n}\n.custom-scrollbar[data-v-175290ff]::-webkit-scrollbar-thumb {\n    background-color: #838383;\n}\n}\r\n\r\n", ""]);
+exports.push([module.i, ".project-modal[data-v-175290ff] {\n  display: flex;\n  flex-direction: column;\n  position: fixed;\n  height: 100vh;\n  top: 0;\n  left: 0;\n  right: 0;\n  --bg-opacity: 1;\n  background-color: #2d3748;\n  background-color: rgba(45, 55, 72, var(--bg-opacity));\n  --bg-opacity: 0.75;\n  color: white;\n  z-index: 9999;\n}\nimg[data-v-175290ff] {\n  /* I would like each image to always fit on the screen. It's kind of hard to view an image if half of it is trailing off the bottom of the screen */\n  /* Unfortunately, I can't use percentage units for setting the maximum height an image can be. For some reason, I have to use pixels or v-units */\n  /* It's not possible without javascript, and I really don't like that. I think I'm just going to stick with max-height being 80vh. */\n  /* 80vh should be plenty for almost any phone screen. Portrait images do become pretty small if the phone is flipped, but not so small you can't tell what it is */\n  /* If the flipped phone thing is a big enough issue, I can use a media query to set the max-height higher, or off entirely when the phone is flipped */\n  max-height: 80vh;\n  max-width: 100%;\n  margin: 0 auto;\n}\n.project-display[data-v-175290ff] {\n  overflow-y: auto;\n  padding-bottom: 50px;\n}\n.scroll-arrow[data-v-175290ff] {\n  right: 10px;\n  bottom: 5px;\n}\n.fade-down-enter-active[data-v-175290ff], .fade-down-leave-active[data-v-175290ff] {\n  transition: opacity .5s, transform .5s;\n}\n.fade-down-enter[data-v-175290ff], .fade-down-leave-to[data-v-175290ff] {\n  opacity: 0;\n  transform: translate(0px, 50px);\n}\n.description-panel[data-v-175290ff] {\n  background-color: #273042;\n  width: 100%;\n  order: 0;\n}\n.project-description[data-v-175290ff] {\n  position: absolute;\n  background-color: #273042;\n  max-height: 50vh;\n  overflow-y: auto;\n  padding: 1rem;\n  width: 100%;\n}\n.hide-on-large[data-v-175290ff] {\n  display: block;\n}\n.custom-scrollbar[data-v-175290ff]::-webkit-scrollbar {\n  width: 5px;\n}\n.custom-scrollbar[data-v-175290ff]::-webkit-scrollbar-track {\n  background-color: #464646;\n}\n.custom-scrollbar[data-v-175290ff]::-webkit-scrollbar-thumb {\n  background-color: #838383;\n}\n@media screen and (min-width: 1024px) {\n.project-modal[data-v-175290ff] {\n    display: flex;\n    flex-direction: row;\n}\nimg[data-v-175290ff] {\n    max-height: 97vh;\n    max-width: 100%;\n}\n.project-display[data-v-175290ff] {\n    width: 80vw;\n    padding: 0;\n}\n.scroll-arrow[data-v-175290ff] {\n    right: 20vw;\n    bottom: 5px;\n    margin-right: 15px;\n}\n.description-panel[data-v-175290ff] {\n    height: auto;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    width: 20%;\n    position: static;\n    order: 2;\n}\n.project-description[data-v-175290ff] {\n    position: static;\n    display: block;\n    max-height: none;\n}\n.hide-on-large[data-v-175290ff] {\n    display: none;\n}\n.custom-scrollbar[data-v-175290ff]::-webkit-scrollbar {\n    width: 10px;\n}\n.custom-scrollbar[data-v-175290ff]::-webkit-scrollbar-track {\n    background-color: #464646;\n}\n.custom-scrollbar[data-v-175290ff]::-webkit-scrollbar-thumb {\n    background-color: #838383;\n}\n}\r\n\r\n", ""]);
 
 // exports
 
@@ -2711,7 +2728,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".banner[data-v-1e3e998e] {\n  overflow: hidden;\n  height: 31vw;\n}\n.banner img[data-v-1e3e998e] {\n  position: relative;\n  -o-object-fit: cover;\n     object-fit: cover;\n  top: -1vw;\n  z-index: 0;\n}\n.header-content[data-v-1e3e998e] {\n  display: flex;\n  flex-direction: column;\n}\n.header-text[data-v-1e3e998e] {\n  padding: .5rem;\n  text-align: center;\n  border-bottom-width: 1px;\n}\n.social-links[data-v-1e3e998e] {\n  display: flex;\n  justify-content: center;\n  padding: 1rem 0;\n  font-size: 1.4rem;\n  order: 2;\n  border-bottom-width: 1px;\n}\n.tab[data-v-1e3e998e] {\n  text-align: center;\n  width: 50%;\n  cursor: pointer;\n  padding: 1rem 0;\n  border-bottom-width: 4px;\n  --border-opacity: 1;\n  border-color: #feebc8;\n  border-color: rgba(254, 235, 200, var(--border-opacity));\n}\n.tab[data-v-1e3e998e]:hover {\n  --bg-opacity: 1;\n  background-color: #e2e8f0;\n  background-color: rgba(226, 232, 240, var(--bg-opacity));\n  --border-opacity: 1;\n  border-color: #fbd38d;\n  border-color: rgba(251, 211, 141, var(--border-opacity));\n  border-bottom-width: 8px;\n}\n.tab-active[data-v-1e3e998e] {\n  --bg-opacity: 1;\n  background-color: #e2e8f0;\n  background-color: rgba(226, 232, 240, var(--bg-opacity));\n  --border-opacity: 1;\n  border-color: #fbd38d;\n  border-color: rgba(251, 211, 141, var(--border-opacity));\n  border-bottom-width: 8px;\n}\n@media screen and (min-width: 426px) {\n.banner[data-v-1e3e998e] {\n    height: 25vw;\n}\n.banner img[data-v-1e3e998e] {\n    top: -3vw;\n}\n}\n@media screen and (min-width: 1024px) {\n.banner[data-v-1e3e998e] {\n    height: 18vw;\n}\n.banner img[data-v-1e3e998e] {\n    top: -2vw;\n}\n.header-content[data-v-1e3e998e] {\n    position: relative;\n    grid-template-columns: repeat(3, minmax(0, 1fr))\n}\n.header-text[data-v-1e3e998e] {\n    padding: 2rem 0;\n}\n.social-links[data-v-1e3e998e] {\n    position: absolute;\n    top: 0;\n    left: .5rem;\n    font-size: 1.1rem;\n    border-bottom-width: 0px;\n    padding: .5rem 0;\n}\n}\n\n", ""]);
+exports.push([module.i, ".banner[data-v-1e3e998e] {\n  overflow: hidden;\n  height: 31vw;\n}\n.banner img[data-v-1e3e998e] {\n  position: relative;\n  -o-object-fit: cover;\n     object-fit: cover;\n  top: -1vw;\n  z-index: 0;\n}\n.header-content[data-v-1e3e998e] {\n  display: flex;\n  flex-direction: column;\n}\n.header-text[data-v-1e3e998e] {\n  padding: .5rem;\n  text-align: center;\n  border-bottom-width: 1px;\n}\n.social-links[data-v-1e3e998e] {\n  display: flex;\n  justify-content: center;\n  padding: 1rem 0;\n  font-size: 1.4rem;\n  order: 2;\n  border-bottom-width: 1px;\n}\n.tab[data-v-1e3e998e] {\n  text-align: center;\n  width: 50%;\n  cursor: pointer;\n  padding: 1rem 0;\n  border-bottom-width: 4px;\n  --border-opacity: 1;\n  border-color: #feebc8;\n  border-color: rgba(254, 235, 200, var(--border-opacity));\n}\n.tab[data-v-1e3e998e]:hover {\n  --bg-opacity: 1;\n  background-color: #e2e8f0;\n  background-color: rgba(226, 232, 240, var(--bg-opacity));\n  --border-opacity: 1;\n  border-color: #fbd38d;\n  border-color: rgba(251, 211, 141, var(--border-opacity));\n  border-bottom-width: 8px;\n}\n.tab-active[data-v-1e3e998e] {\n  --bg-opacity: 1;\n  background-color: #e2e8f0;\n  background-color: rgba(226, 232, 240, var(--bg-opacity));\n  --border-opacity: 1;\n  border-color: #fbd38d;\n  border-color: rgba(251, 211, 141, var(--border-opacity));\n  border-bottom-width: 8px;\n}\n@media screen and (min-width: 426px) {\n.banner[data-v-1e3e998e] {\n    height: 25vw;\n}\n.banner img[data-v-1e3e998e] {\n    top: -3vw;\n}\n}\n@media screen and (min-width: 1024px) {\n.banner[data-v-1e3e998e] {\n    height: 18vw;\n}\n.banner img[data-v-1e3e998e] {\n    top: -2vw;\n}\n.header-content[data-v-1e3e998e] {\n    position: relative;\n    grid-template-columns: repeat(3, minmax(0, 1fr))\n}\n.header-text[data-v-1e3e998e] {\n    padding: 2rem 0;\n}\n.social-links[data-v-1e3e998e] {\n    position: absolute;\n    top: 0;\n    left: .5rem;\n    font-size: 1.1rem;\n    border-bottom-width: 0px;\n    padding: .5rem 0;\n}\n}\r\n\r\n", ""]);
 
 // exports
 
@@ -21329,10 +21346,11 @@ var render = function() {
     _c(
       "ul",
       {
+        ref: "projectDisplay",
         staticClass: "project-display custom-scrollbar",
         on: {
           scroll: function($event) {
-            return _vm.onScroll($event.target.scrollTop)
+            return _vm.onScroll()
           }
         }
       },
@@ -21364,7 +21382,14 @@ var render = function() {
         _vm._v(" "),
         _vm._l(_vm.currentProject.images, function(image) {
           return _c("li", { key: image.id, staticClass: "p-2" }, [
-            _c("img", { attrs: { src: _vm.getImgUrl(image.path), alt: "" } }),
+            _c("img", {
+              attrs: { src: _vm.getImgUrl(image.path), alt: "" },
+              on: {
+                load: function($event) {
+                  return _vm.setDisplayScrollPrompt()
+                }
+              }
+            }),
             _vm._v(" "),
             _c("p", { staticClass: "text-center" }, [
               _vm._v(
