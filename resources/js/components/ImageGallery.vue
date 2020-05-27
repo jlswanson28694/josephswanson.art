@@ -1,40 +1,8 @@
 <template>
     <div>
-        <!-- I have a lot of images on my site, it ends up totaling over 24mb to load the main page. That will increase as the image galleries increase (the 3D image gallery isn't done yet) -->
-        <!-- I'm not sure how much data is too much, but I know I'm using images with 3k or even 4k resolution when almost no screens would ever need to display that many pixels -->
-        <!-- There may be some abnormal screens where the image would need to be 3k or 4k -->
-        <!-- For large "process" type images, the ability to zoom in to see finer detail is kind of important too -->
-        <!-- Still, some of these images are way too big -->
-
-        <!-- Alright so after going on Artstation to check, they just load in 3k images that are over 1mb all the time. Large posts with lots of images could easily hit 24mb -->
-        <!-- That said, I don't really think I need to load in 24mb for my site. I'd like it to be less. -->
-        <!-- Well, I guess the images are cached on the hard drive, right? It would only be a one-time thing until the user cleared their cache -->
-        <!-- I'm not sure my computer is caching the images...hmmm -->
-
-        <!-- Side note: If a project image has a smaller pixel width than the container's pixel width, it doesn't fill the container, it just remains the original width. -->
-        <!-- If I want to have it grow to fill the container, I will need to use some javascript -->
-        <!-- On large screens: -->
-        <!-- Landscape images should be set to 100% width until the max height of 97vh is reached -->
-        <!-- Portrait images should be set to 100vh until the max width of 100% is reached -->
-        <!-- This might be too much of a pain. I would need to make an image component that listens for window resize and applies styling based on the image's aspect ratio and type of screen -->
-        <!-- It's much easier to save the initial images for use on a 4k monitor (lanscape width should be 2022px+, portrait height should be 1300px+)(Portrait images might have a problem on vertical 4k monitors, but I really don't think it matters) -->
-        <!-- These seem like reasonable sizes. Downsizing like that is going to kill some detail for those who want to zoom in on the image, but for the most part it really shouldn't matter -->
-        <!-- If I decide to downsize the images further, I WILL have to deal with the "image not filling the container" problem -->
-        <!-- If I change the dimensions at all I'll have to deal with the problem. I am NOT going to resize every image just because I downsized the width of the description panel -->
-        <!-- There is a little leeway when it comes to those dimensions. If the image is just a little too small, it's not a big deal -->
-
-        <!-- I just thought of something that I should have thought of earlier, and I'm not really sure what's happening -->
-        <!-- My 4k monitor will scale up apps so text, buttons, etc are actually readable. What does this mean for images? -->
-        <!-- The screen is just over 2k pixels in height, but an image that takes up the height of the screen in Chrome says it is 1300 pixels in height -->
-        <!-- The only way it takes up the entire screen is if it is actually a smaller image that is being scaled up to fit my monitor -->
-        <!-- The question is, what does it do with an image who's original size actually does take up the full 2k pixels in height? -->
-        <!-- Chrome would still say the image is only 1300 px in height, but is it doing the same thing? -->
-        <!-- Is the full size 2k image being scaled down to 1300px, and that smaller image being blown up to fit my monitor? -->
-        <!-- It seems really weird that it would do that when the original full size image would actually fit the screen. -->
-        <!-- I have my images sized to fit what Chrome dev tools says is "4k," but if Chrome was to actually display 4k resolution, they would be too small -->
-        <!-- I'm just a bit concerned because Windows is scaling up my images to fit a 4k monitor, and scaling up reduces perceived quality -->
-        <!-- Making my images bigger would only benefit those with a 4k monitor who choose not to scale their apps, or those who zoom out in their web browser -->
-        <!-- You would think Chrome would have a way to make the text, icons, etc bigger so the full 4k resolution could be utilized -->
+        <!-- I switched to using lower resolution "thumbnails" for the image gallery. The full resolution loads when you open the project. -->
+        <!-- I didn't want to use an image that was too small. On the 4k monitor, the images are displayed at a pretty large resolution. If I downsize them too much, they will look bad.-->
+        <!-- Looks like the lowest I can set the thumbnails is to 1500px max width, and 800px max height. Any lower and they start to look pretty blurry. It doesn't seem like a huge improvement, but it does cut the file size significantly. -->
 
         <ul v-for="row in finalGallery" :key="row.id" :class="{'flex justify-center' : !onMobile}">
             <li v-for="thumbnail in row.images" :key="thumbnail.id" :style="getImageWidth(thumbnail.percentOfRow)" class="relative m-1 shadow-md">
@@ -48,7 +16,6 @@
 
 <script>
 export default {
-    // TO DO: THE IMAGE INFORMATION SHOULD COME FROM A DATABASE, NOT FROM A JSON OBJECT SAVED IN THE ASSETS FOLDER 
     name: "ImageGallery",
 
     props: {
@@ -129,16 +96,12 @@ export default {
                 } else {
                     // The current row's aspect ratio is below the maxAspectRatio, but may or may not be able to handle another image without it going below the minAspectRatio
 
+                    
                     // I need to add the current image to the row to check if the aspect ratio drops below minAspectRatio
                     // However, I don't want to mess with the actual row in case I want to keep it, so I copy it over to a temporary object
-                    // There might be an easier way to make a deep copy of an object...
-                    let tmpRow = new Row(row.id);
-                    tmpRow.width = row.width;
-                    tmpRow.height = row.height;
-                    tmpRow.aspectRatio = row.aspectRatio;
-                    // Images is an array, which assigns a pointer, so I have to make a copy
-                    tmpRow.images = JSON.parse(JSON.stringify(row.images));
-                    
+                    // I need a deep copy since the row object has both methods and a nested array of images. I use lodash cloneDeep for this.
+                    let tmpRow = _.cloneDeep(row);
+
                     // Now I can add the image to test the aspect ratio without affecting the actual row
                     tmpRow.addImage(currentImage);
 

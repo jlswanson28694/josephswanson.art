@@ -1,5 +1,16 @@
 <template>
     <div class="project-modal">
+        <!-- If a project image has a smaller pixel width than the container's pixel width, it doesn't fill the container, it just remains the original width. -->
+        <!-- If I want to have it grow to fill the container, I will need to use some javascript -->
+        <!-- On large screens: -->
+        <!-- Landscape images should be set to 100% width until the max height of 97vh is reached -->
+        <!-- Portrait images should be set to 100vh until the max width of 100% is reached -->
+        <!-- This might be too much of a pain. I would need to make an image component that listens for window resize and applies styling based on the image's aspect ratio and type of screen -->
+        <!-- It's much easier to save the initial images for use on a 4k monitor (lanscape width should be 2022px+, portrait height should be 1300px+) -->
+        <!-- These seem like reasonable sizes. Downsizing like that is going to kill some detail for those who want to zoom in on the image, but for the most part it really shouldn't matter -->
+        <!-- If I decide to downsize the images further, I WILL have to deal with the "image not filling the container" problem -->
+        <!-- If I change the dimensions at all I'll have to deal with the problem. I am NOT going to resize every image just because I downsized the width of the description panel -->
+        <!-- There is a little leeway when it comes to those dimensions. If the image is just a little too small, it's not a big deal -->
 
         <div class="description-panel">
             <div class="flex justify-between items-center bg-gray-900 p-4">
@@ -89,6 +100,11 @@ export default {
 
         window.addEventListener('resize', this.onResize);
         this.setScreenType();
+    },
+
+    beforeDestroy() {
+        // The event listener I assigned when the component starts stays when it is destroyed. If it tries to run code on a component that doesn't exist, there are some problems, so I have to remove the event listener.
+        window.removeEventListener('resize', this.onResize);
     },
 
     methods: {

@@ -1966,40 +1966,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
-  // TO DO: THE IMAGE INFORMATION SHOULD COME FROM A DATABASE, NOT FROM A JSON OBJECT SAVED IN THE ASSETS FOLDER 
   name: "ImageGallery",
   props: {
     type: {
@@ -2073,13 +2040,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           // The current row's aspect ratio is below the maxAspectRatio, but may or may not be able to handle another image without it going below the minAspectRatio
           // I need to add the current image to the row to check if the aspect ratio drops below minAspectRatio
           // However, I don't want to mess with the actual row in case I want to keep it, so I copy it over to a temporary object
-          // There might be an easier way to make a deep copy of an object...
-          var tmpRow = new Row(row.id);
-          tmpRow.width = row.width;
-          tmpRow.height = row.height;
-          tmpRow.aspectRatio = row.aspectRatio; // Images is an array, which assigns a pointer, so I have to make a copy
+          // I need a deep copy since the row object has both methods and a nested array of images. I use lodash cloneDeep for this.
+          var tmpRow = _.cloneDeep(row); // Now I can add the image to test the aspect ratio without affecting the actual row
 
-          tmpRow.images = JSON.parse(JSON.stringify(row.images)); // Now I can add the image to test the aspect ratio without affecting the actual row
 
           tmpRow.addImage(currentImage);
           console.log("The row's height would be " + tmpRow.aspectRatio * 100 + "% of the row's width.");
@@ -2253,6 +2216,17 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 // TO DO: 
 // * SET MAX IMAGE HEIGHT HIGHER FOR HORIZONTAL PHONE SCREENS?
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -2287,6 +2261,10 @@ __webpack_require__.r(__webpack_exports__);
     });
     window.addEventListener('resize', this.onResize);
     this.setScreenType();
+  },
+  beforeDestroy: function beforeDestroy() {
+    // The event listener I assigned when the component starts stays when it is destroyed. If it tries to run code on a component that doesn't exist, there are some problems, so I have to remove the event listener.
+    window.removeEventListener('resize', this.onResize);
   },
   methods: {
     setDisplayScrollPrompt: function setDisplayScrollPrompt() {
@@ -2589,9 +2567,9 @@ __webpack_require__.r(__webpack_exports__);
         return 'concept-art';
       }
     },
+    // I believe I have to have these two properties in the computed or watched properties
+    // The Portfolio component is being reused across any project page, so these properties need to be updated as the route changes. Using a computed property is the easiest way to do this.
     projectId: function projectId() {
-      // I believe I have to have these parameters in the computed or watched properties
-      // The Portfolio component is being reused across any project page, so it needs to know that the route has changed, and update these values
       return this.$route.params.projectId;
     },
     tab: function tab() {

@@ -77,9 +77,9 @@ export default {
             }
         },
 
+        // I believe I have to have these two properties in the computed or watched properties
+        // The Portfolio component is being reused across any project page, so these properties need to be updated as the route changes. Using a computed property is the easiest way to do this.
         projectId() {
-            // I believe I have to have these parameters in the computed or watched properties
-            // The Portfolio component is being reused across any project page, so it needs to know that the route has changed, and update these values
             return this.$route.params.projectId;
         },
 
