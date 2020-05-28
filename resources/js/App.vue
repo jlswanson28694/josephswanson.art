@@ -37,7 +37,6 @@ h1 {
     width: 100%;
     margin: 0 auto;
     background-color: white;
-    /* CSS for a drop shadow is extremely messy*/
     @apply shadow-lg;
 }
 

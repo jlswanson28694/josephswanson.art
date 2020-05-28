@@ -27,9 +27,7 @@
             </div>
         </header>
 
-        <!-- I load them both in so the tab switching is instant, but I'm wondering if the component is cached -->
-        <!-- If the component is cached, I could load just one image gallery (saving bandwith), and the tab switching would still be instant like I wanted -->
-        <!-- The first tab switch wouldn't be instant, but any switch after that would be -->
+        <!-- Image gallery -->
         <div class="p-6">
             <image-gallery type="Concept Art" tab="concept-art" v-show="currentTab == 'concept-art'"></image-gallery>
 
@@ -37,7 +35,6 @@
         </div>
 
         <!-- Project modal -->
-        <!-- So this is interesting. I'm using v-if, but the component is not destroyed if I return to the home page. I thought v-if destroyed the component. -->
         <div v-if="projectId">
             <project-modal :id="projectId"></project-modal>
         </div>

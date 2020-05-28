@@ -6,7 +6,6 @@ import NotFound from '../views/NotFound.vue'
 
 Vue.use(VueRouter)
 
-// Order matters! The routes declared first override routes declared later.
 const routes = {
     mode: 'history',
 
